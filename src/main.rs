@@ -1,8 +1,6 @@
-mod logo;
 mod docker;
+mod logo;
 
-use std::os::unix::net::UnixStream;
-use std::io::{ Read, Write };
 use crate::docker::Docker;
 
 const VERSION: &str = "0.1.0";
@@ -11,7 +9,7 @@ fn main() {
     logo::draw(&VERSION);
     /* ---------------------------------------------------------------------------------------------
     1. find all running containers
-    2. cature their image ID + startup/launch command (filter any labels that do not want 
+    2. cature their image ID + startup/launch command (filter any labels that do not want
         to be tracked)
     3. pull latest images
     4. compare difference between running image ID vs pulled image ID
@@ -21,10 +19,9 @@ fn main() {
     7. sleep for X and then goto step 1
     --------------------------------------------------------------------------------------------- */
     if let Ok(docker) = Docker::new() {
-        if let Some(x) = docker.call("test") {
+        if let Some(x) = docker.get("/images/json") {
             println!("{}", x);
         }
-
     }
 }
 
@@ -48,6 +45,4 @@ fn trigger_new_laun() {
     // todo
 }
 
-fn trigger_alerts() {
-    
-}
+fn trigger_alerts() {}

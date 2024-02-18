@@ -23,8 +23,8 @@
 
 # Introduction
 
-The [Watchtower](https://github.com/containrrr/watchtower/) is a very popular project that is used to keep an
-eye on running containers on a host. It automatically redeploys containers if a newer image version is found.
+[Watchtower](https://github.com/containrrr/watchtower/) is a very popular project that is used to keep an
+eye on running containers. It automatically redeploys any containers if a newer image version is found.
 
 I wanted to create a much more simplified and lightweight alternative to `watchtower` and hence `radar` was born!
 
@@ -36,7 +36,7 @@ linked binary, just run the handy build script `./build.sh`.
 ```console
 $ cargo build
 Finished dev [unoptimized + debuginfo] target(s) in 0.01s
-    Running `target/debug/ron`
+    Running `target/debug/radar`
 ....
 ```
 
