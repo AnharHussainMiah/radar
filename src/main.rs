@@ -20,8 +20,9 @@ fn main() {
     7. sleep for X and then goto step 1
     --------------------------------------------------------------------------------------------- */
     if let Ok(docker) = Docker::new() {
-        if let Some(x) = docker.get("/images/json") {
-            println!("{}", x);
+        let images = docker.list_containers();
+        for image in images {
+            println!("{}", image);
         }
     }
 }

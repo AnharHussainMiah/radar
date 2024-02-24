@@ -1,4 +1,5 @@
 use crate::http::Response;
+use std::collections::HashMap;
 use std::io::Read;
 use std::io::Write;
 use std::os::unix::net::UnixStream;
@@ -93,5 +94,15 @@ impl Docker {
             };
         }
         return None;
+    }
+
+    pub fn list_containers(self) -> Vec<String> {
+        if let Some(data) = Docker::get(self, "/images/json") {
+            let json: Vec<HashMap<String, serde_json::Value>> =
+                serde_json::from_str(&data).expect("unable to parse json");
+            let images = json.iter().map(|x| x["Id"].to_string()).collect();
+            return images;
+        }
+        Vec::new()
     }
 }
