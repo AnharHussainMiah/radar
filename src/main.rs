@@ -1,4 +1,5 @@
 mod docker;
+mod http;
 mod logo;
 
 use crate::docker::Docker;

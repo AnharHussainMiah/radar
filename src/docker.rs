@@ -1,3 +1,4 @@
+use crate::http::Response;
 use std::io::Read;
 use std::io::Write;
 use std::os::unix::net::UnixStream;
@@ -66,11 +67,31 @@ impl Docker {
 
     pub fn get(self, url: &str) -> Option<String> {
         let request = Docker::build_request(RequestVerb::GET, url, None);
-        Docker::dial(self, &request)
+
+        if let Some(response) = Docker::dial(self, &request) {
+            return match Response::parse_http_response(response.into()) {
+                Ok(parsed) => Some(parsed.body),
+                Err(e) => {
+                    println!("ERROR: {}", e);
+                    None
+                }
+            };
+        }
+        return None;
     }
 
     pub fn post(self, url: &str, payload: &str) -> Option<String> {
         let request = Docker::build_request(RequestVerb::POST, url, Some(payload.to_string()));
-        Docker::dial(self, &request)
+
+        if let Some(response) = Docker::dial(self, &request) {
+            return match Response::parse_http_response(response.into()) {
+                Ok(parsed) => Some(parsed.body),
+                Err(e) => {
+                    println!("ERROR: {}", e);
+                    None
+                }
+            };
+        }
+        return None;
     }
 }
