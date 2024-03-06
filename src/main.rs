@@ -1,4 +1,5 @@
 mod docker;
+mod ffi;
 mod http;
 mod logo;
 
@@ -6,6 +7,7 @@ use crate::docker::Docker;
 
 const VERSION: &str = "0.1.0";
 
+#[cfg(not(target_arch = "wasm32"))]
 fn main() {
     logo::draw(&VERSION);
     /* ---------------------------------------------------------------------------------------------
@@ -19,10 +21,15 @@ fn main() {
     6. send out alerts if any
     7. sleep for X and then goto step 1
     --------------------------------------------------------------------------------------------- */
-    if let Ok(docker) = Docker::new() {
+    if let Ok(mut docker) = Docker::new() {
         let images = docker.list_containers();
-        for image in images {
-            println!("{}", image);
+        for id in images {
+            println!("{}", id);
+            let inspect = docker.inspect(id).unwrap();
+            // println!("{:?}", inspect);
+            if let Ok(r) = ffi::transform(inspect) {
+                println!("{}", r);
+            }
         }
     }
 }

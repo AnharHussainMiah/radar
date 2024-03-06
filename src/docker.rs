@@ -24,7 +24,7 @@ impl Docker {
         Ok(Docker { socket: raw_socket })
     }
 
-    fn dial(mut self, request: &str) -> Option<String> {
+    fn dial(&mut self, request: &str) -> Option<String> {
         match self.socket.write_all(request.as_bytes()) {
             Ok(_) => println!("==> bytes written to unix socket"),
             Err(err) => println!("==> ERROR: unable to write to unix socket: {}", err),
@@ -66,7 +66,7 @@ impl Docker {
         }
     }
 
-    pub fn get(self, url: &str) -> Option<String> {
+    pub fn get(&mut self, url: &str) -> Option<String> {
         let request = Docker::build_request(RequestVerb::GET, url, None);
 
         if let Some(response) = Docker::dial(self, &request) {
@@ -81,7 +81,7 @@ impl Docker {
         return None;
     }
 
-    pub fn post(self, url: &str, payload: &str) -> Option<String> {
+    pub fn post(&mut self, url: &str, payload: &str) -> Option<String> {
         let request = Docker::build_request(RequestVerb::POST, url, Some(payload.to_string()));
 
         if let Some(response) = Docker::dial(self, &request) {
@@ -96,23 +96,38 @@ impl Docker {
         return None;
     }
 
-    pub fn list_images(self) -> Vec<String> {
+    pub fn list_images(&mut self) -> Vec<String> {
         if let Some(data) = Docker::get(self, "/images/json") {
             let json: Vec<HashMap<String, serde_json::Value>> =
                 serde_json::from_str(&data).expect("unable to parse json");
-            let images = json.iter().map(|x| x["Id"].to_string()).collect();
+            let images = json
+                .iter()
+                .map(|x| x["Id"].to_string().replace("\"", ""))
+                .collect();
             return images;
         }
         Vec::new()
     }
 
-    pub fn list_containers(self) -> Vec<String> {
+    pub fn list_containers(&mut self) -> Vec<String> {
         if let Some(data) = Docker::get(self, "/containers/json") {
             let json: Vec<HashMap<String, serde_json::Value>> =
                 serde_json::from_str(&data).expect("unable to parse json");
-            let images = json.iter().map(|x| x["Id"].to_string()).collect();
+            // println!("{:?}", json);
+            let images = json
+                .iter()
+                .map(|x| x["Id"].to_string().replace("\"", ""))
+                .collect();
             return images;
         }
         Vec::new()
+    }
+
+    pub fn inspect(&mut self, container_id: String) -> Option<String> {
+        if let Some(data) = Docker::get(self, &format!("/containers/{}/json", container_id)) {
+            // println!("INSPECT -> {}", data);
+            return Some(data.to_string());
+        }
+        None
     }
 }
